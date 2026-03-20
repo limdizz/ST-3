@@ -13,12 +13,12 @@
 #include <thread>
 
 class MockTimerClient : public TimerClient {
-public:
+ public:
   MOCK_METHOD(void, Timeout, (), (override));
 };
 
 class TimedDoorFixture : public ::testing::Test {
-protected:
+ protected:
   std::unique_ptr<TimedDoor> door;
 
   void SetUp() override {
