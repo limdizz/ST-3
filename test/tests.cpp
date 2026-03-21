@@ -13,12 +13,12 @@
 #include <thread>
 
 class MockTimerClient : public TimerClient {
- public:
+public:
   MOCK_METHOD(void, Timeout, (), (override));
 };
 
 class TimedDoorFixture : public ::testing::Test {
- protected:
+protected:
   std::unique_ptr<TimedDoor> door;
 
   void SetUp() override {
@@ -127,4 +127,55 @@ TEST(DoorTimerAdapterStandalone, CheckTimeoutDoesNotThrowWhenDoorClosed) {
   door.lock();
   DoorTimerAdapter adapter(door);
   EXPECT_NO_THROW(adapter.Timeout());
+}
+
+TEST(TimerStandalone, CheckRegisterWithNegativeTimeout) {
+  Timer timer;
+  MockTimerClient client;
+  EXPECT_CALL(client, Timeout()).Times(1);
+  timer.tregister(-5, &client);
+}
+
+TEST(TimerStandalone, CheckTimerStoresClientCorrectly) {
+  Timer timer;
+  MockTimerClient client1;
+  MockTimerClient client2;
+
+  EXPECT_CALL(client1, Timeout()).Times(1);
+  timer.tregister(0, &client1);
+
+  EXPECT_CALL(client2, Timeout()).Times(1);
+  timer.tregister(0, &client2);
+}
+
+TEST(TimedDoorStandalone, CheckExceptionMessage) {
+  TimedDoor door(0);
+  door.lock();
+
+  try {
+    door.unlock();
+    FAIL() << "Expected std::runtime_error";
+  } catch (const std::runtime_error &e) {
+    EXPECT_STREQ(e.what(), "дверь все еще открыта");
+  }
+}
+
+TEST(TimerStandalone, CheckConcurrentTimerRegistrations) {
+  Timer timer;
+  MockTimerClient client1;
+  MockTimerClient client2;
+
+  EXPECT_CALL(client1, Timeout()).Times(1);
+  EXPECT_CALL(client2, Timeout()).Times(1);
+
+  auto future1 = std::async(std::launch::async, [&timer, &client1]() {
+    timer.tregister(10, &client1);
+  });
+
+  auto future2 = std::async(std::launch::async, [&timer, &client2]() {
+    timer.tregister(10, &client2);
+  });
+
+  future1.wait();
+  future2.wait();
 }
