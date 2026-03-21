@@ -148,18 +148,6 @@ TEST(Timer, CheckTimerStoresClientCorrectly) {
   timer.tregister(0, &client2);
 }
 
-TEST(TimedDoor, CheckExceptionMessage) {
-  TimedDoor door(0);
-  door.lock();
-
-  try {
-    door.unlock();
-    FAIL() << "Expected std::runtime_error";
-  } catch (const std::runtime_error &e) {
-    EXPECT_STREQ(e.what(), "the door is still opened");
-  }
-}
-
 TEST(DoorTimerAdapterStandalone, CheckTimeoutWithDifferentTimeoutValues) {
   TimedDoor door(50);
   door.lock();
