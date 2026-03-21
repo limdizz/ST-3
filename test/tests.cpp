@@ -148,7 +148,7 @@ TEST(Timer, CheckTimerStoresClientCorrectly) {
   timer.tregister(0, &client2);
 }
 
-TEST(DoorTimerAdapterStandalone, CheckTimeoutWithDifferentTimeoutValues) {
+TEST(DoorTimerAdapter, CheckTimeoutWithDifferentTimeoutValues) {
   TimedDoor door(50);
   door.lock();
   DoorTimerAdapter adapter(door);
@@ -162,7 +162,7 @@ TEST(DoorTimerAdapterStandalone, CheckTimeoutWithDifferentTimeoutValues) {
   EXPECT_THROW(adapter.Timeout(), std::runtime_error);
 }
 
-TEST(TimedDoorStandalone, CheckDoorCanBeReopenedAfterClosing) {
+TEST(TimedDoor, CheckDoorCanBeReopenedAfterClosing) {
   TimedDoor door(50);
   door.lock();
 
@@ -179,7 +179,7 @@ TEST(TimedDoorStandalone, CheckDoorCanBeReopenedAfterClosing) {
   EXPECT_TRUE(door.isDoorOpened());
 }
 
-TEST(DoorTimerAdapterStandalone, CheckMultipleAdaptersForSameDoor) {
+TEST(DoorTimerAdapter, CheckMultipleAdaptersForSameDoor) {
   TimedDoor door(0);
   door.lock();
 
@@ -198,7 +198,7 @@ TEST(DoorTimerAdapterStandalone, CheckMultipleAdaptersForSameDoor) {
   EXPECT_THROW(adapter2.Timeout(), std::runtime_error);
 }
 
-TEST(TimedDoorStandalone, CheckDoorStateAfterMultipleUnlockAttempts) {
+TEST(TimedDoor, CheckDoorStateAfterMultipleUnlockAttempts) {
   TimedDoor door(0);
   door.lock();
 
@@ -213,7 +213,7 @@ TEST(TimedDoorStandalone, CheckDoorStateAfterMultipleUnlockAttempts) {
   }
 }
 
-TEST(DoorTimerAdapterStandalone, CheckTimeoutAfterDoorClosed) {
+TEST(DoorTimerAdapter, CheckTimeoutAfterDoorClosed) {
   TimedDoor door(50);
   door.lock();
   DoorTimerAdapter adapter(door);
@@ -228,7 +228,7 @@ TEST(DoorTimerAdapterStandalone, CheckTimeoutAfterDoorClosed) {
   EXPECT_NO_THROW(adapter.Timeout());
 }
 
-TEST(TimedDoorStandalone, CheckDoorWithMaxTimeout) {
+TEST(TimedDoor, CheckDoorWithMaxTimeout) {
   const int MAX_TIMEOUT = 10000;
   TimedDoor door(MAX_TIMEOUT);
   door.lock();
