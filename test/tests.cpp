@@ -242,3 +242,28 @@ TEST(TimedDoor, CheckDoorWithMaxTimeout) {
   }
   EXPECT_TRUE(door.isDoorOpened());
 }
+
+TEST(TimedDoor, CheckSafeDeletionNoNoexcept) {
+  EXPECT_NO_THROW({
+    TimedDoor* dynamicDoor = new TimedDoor(10);
+    dynamicDoor->unlock();
+    delete dynamicDoor;
+  });
+}
+
+TEST(Timer, OverrideClientImplicitly) {
+  Timer timer;
+  MockTimerClient client1;
+  MockTimerClient client2;
+
+  EXPECT_CALL(client1, Timeout()).Times(1);
+  timer.tregister(0, &client1);
+
+  EXPECT_CALL(client2, Timeout()).Times(1);
+  timer.tregister(0, &client2);
+}
+
+TEST(TimedDoor, ZeroTimeoutThrowsImmediately) {
+  TimedDoor zeroDoor(0);
+  EXPECT_THROW(zeroDoor.unlock(), std::runtime_error);
+}
