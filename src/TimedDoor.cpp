@@ -5,23 +5,22 @@
 #include <stdexcept>
 #include <thread>
 
-DoorTimerAdapter::DoorTimerAdapter(TimedDoor &door) : door(door) {}
+DoorTimerAdapter::DoorTimerAdapter(TimedDoor &d) : door(d) {}
 
-void DoorTimerAdapter::Timeout() {
-  Timer timer;
-  timer.tregister(door.getTimeOut(), nullptr);
-  door.throwState();
-}
+void DoorTimerAdapter::Timeout() { door.throwState(); }
 
 TimedDoor::TimedDoor(int timeout)
     : adapter(new DoorTimerAdapter(*this)), iTimeout(timeout), isOpened(false) {
 }
 
+TimedDoor::~TimedDoor() { delete adapter; }
+
 bool TimedDoor::isDoorOpened() { return isOpened; }
 
 void TimedDoor::unlock() {
   isOpened = true;
-  adapter->Timeout();
+  Timer timer;
+  timer.tregister(iTimeout, adapter);
 }
 
 void TimedDoor::lock() { isOpened = false; }
@@ -30,7 +29,7 @@ int TimedDoor::getTimeOut() const { return iTimeout; }
 
 void TimedDoor::throwState() {
   if (isOpened) {
-    throw std::runtime_error("дверь все еще открыта");
+    throw std::runtime_error("Дверь до сих пор открыта!");
   }
 }
 
