@@ -61,7 +61,7 @@ TEST(TimedDoor, CheckTimeoutValueIsStoredInDoor) {
 TEST(TimedDoor, CheckDoorRemainsOpenedAfterUnlockException) {
   TimedDoor door(0);
   door.lock();
-  
+
   EXPECT_THROW(door.unlock(), std::runtime_error);
   EXPECT_TRUE(door.isDoorOpened());
 }
@@ -72,7 +72,7 @@ TEST(TimedDoor, CheckUnlockNotThrowIfDoorGetsClosedBeforeTimeout) {
 
   auto worker = std::async(std::launch::async, [&door]() -> bool {
     EXPECT_NO_THROW(door.unlock());
-    return false; 
+    return false;
   });
 
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
