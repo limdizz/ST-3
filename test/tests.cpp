@@ -244,9 +244,11 @@ TEST(TimedDoor, CheckDoorWithMaxTimeout) {
 }
 
 TEST(TimedDoor, CheckSafeDeletionNoNoexcept) {
+  TimedDoor* dynamicDoor = new TimedDoor(10);
+  
+  EXPECT_THROW(dynamicDoor->unlock(), std::runtime_error);
+  
   EXPECT_NO_THROW({
-    TimedDoor* dynamicDoor = new TimedDoor(10);
-    dynamicDoor->unlock();
     delete dynamicDoor;
   });
 }
