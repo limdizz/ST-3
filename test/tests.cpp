@@ -43,10 +43,7 @@ TEST_F(TimedDoorFixture, CheckNoThrowForClosedDoor) {
 }
 
 TEST_F(TimedDoorFixture, CheckThrowsForOpenedDoor) {
-  try {
-    door->unlock();
-  } catch (const std::runtime_error &) {
-  }
+  EXPECT_THROW(door->unlock(), std::runtime_error);
   EXPECT_THROW(door->throwState(), std::runtime_error);
 }
 
@@ -64,10 +61,8 @@ TEST(TimedDoor, CheckTimeoutValueIsStoredInDoor) {
 TEST(TimedDoor, CheckDoorRemainsOpenedAfterUnlockException) {
   TimedDoor door(0);
   door.lock();
-  try {
-    door.unlock();
-  } catch (const std::runtime_error &) {
-  }
+  
+  EXPECT_THROW(door.unlock(), std::runtime_error);
   EXPECT_TRUE(door.isDoorOpened());
 }
 
@@ -76,18 +71,14 @@ TEST(TimedDoor, CheckUnlockNotThrowIfDoorGetsClosedBeforeTimeout) {
   door.lock();
 
   auto worker = std::async(std::launch::async, [&door]() -> bool {
-    try {
-      door.unlock();
-      return false;
-    } catch (const std::runtime_error &) {
-      return true;
-    }
+    EXPECT_NO_THROW(door.unlock());
+    return false; 
   });
 
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
   door.lock();
 
-  EXPECT_FALSE(worker.get());
+  worker.wait();
   EXPECT_FALSE(door.isDoorOpened());
 }
 
@@ -113,10 +104,8 @@ TEST(Timer, CheckRegisterWithDelayCallsClientTimeout) {
 TEST(DoorTimerAdapter, CheckTimeoutThrowsWhenDoorOpened) {
   TimedDoor door(0);
   door.lock();
-  try {
-    door.unlock();
-  } catch (const std::runtime_error &) {
-  }
+
+  EXPECT_THROW(door.unlock(), std::runtime_error);
 
   DoorTimerAdapter adapter(door);
   EXPECT_THROW(adapter.Timeout(), std::runtime_error);
@@ -155,10 +144,7 @@ TEST(DoorTimerAdapter, CheckTimeoutWithDifferentTimeoutValues) {
 
   EXPECT_NO_THROW(adapter.Timeout());
 
-  try {
-    door.unlock();
-  } catch (const std::runtime_error &) {
-  }
+  EXPECT_THROW(door.unlock(), std::runtime_error);
   EXPECT_THROW(adapter.Timeout(), std::runtime_error);
 }
 
@@ -166,10 +152,7 @@ TEST(TimedDoor, CheckDoorCanBeReopenedAfterClosing) {
   TimedDoor door(50);
   door.lock();
 
-  try {
-    door.unlock();
-  } catch (const std::runtime_error &) {
-  }
+  EXPECT_THROW(door.unlock(), std::runtime_error);
   EXPECT_TRUE(door.isDoorOpened());
 
   door.lock();
@@ -189,10 +172,7 @@ TEST(DoorTimerAdapter, CheckMultipleAdaptersForSameDoor) {
   EXPECT_NO_THROW(adapter1.Timeout());
   EXPECT_NO_THROW(adapter2.Timeout());
 
-  try {
-    door.unlock();
-  } catch (const std::runtime_error &) {
-  }
+  EXPECT_THROW(door.unlock(), std::runtime_error);
 
   EXPECT_THROW(adapter1.Timeout(), std::runtime_error);
   EXPECT_THROW(adapter2.Timeout(), std::runtime_error);
@@ -203,10 +183,7 @@ TEST(TimedDoor, CheckDoorStateAfterMultipleUnlockAttempts) {
   door.lock();
 
   for (int i = 0; i < 5; ++i) {
-    try {
-      door.unlock();
-    } catch (const std::runtime_error &) {
-    }
+    EXPECT_THROW(door.unlock(), std::runtime_error);
     EXPECT_TRUE(door.isDoorOpened());
     door.lock();
     EXPECT_FALSE(door.isDoorOpened());
@@ -218,13 +195,9 @@ TEST(DoorTimerAdapter, CheckTimeoutAfterDoorClosed) {
   door.lock();
   DoorTimerAdapter adapter(door);
 
-  try {
-    door.unlock();
-  } catch (const std::runtime_error &) {
-  }
+  EXPECT_THROW(door.unlock(), std::runtime_error);
 
   door.lock();
-
   EXPECT_NO_THROW(adapter.Timeout());
 }
 
@@ -236,10 +209,7 @@ TEST(TimedDoor, CheckDoorWithMaxTimeout) {
   EXPECT_EQ(door.getTimeOut(), MAX_TIMEOUT);
   EXPECT_FALSE(door.isDoorOpened());
 
-  try {
-    door.unlock();
-  } catch (const std::runtime_error &) {
-  }
+  EXPECT_THROW(door.unlock(), std::runtime_error);
   EXPECT_TRUE(door.isDoorOpened());
 }
 
